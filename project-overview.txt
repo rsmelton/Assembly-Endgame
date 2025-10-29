@@ -1,0 +1,63 @@
+1. What is the structure of the application?
+   Outermost container: Flex container with centered items
+    H1 tag: Assembly: Endgame
+
+    p tag: Instructional message
+
+    Popup that displays some message like You win or Game over or Farewell HTML & CSS, etc
+
+    Container containing all the different programming languages
+
+    Boxes for the word that needs to be guessed
+
+    Our Keyboard
+
+    New game button that appears once you win or lose
+
+2. What are the main components I will need?
+    1. We may have a component for the popup or we could alternatively
+       write the code for it inside our outermost container.
+    2. We probably need a component for each of our programming language boxes. 
+    3. We for sure need a component for the boxes that hold the letters that the user guesses.
+    4. We may or may not need a component for the keyboard.
+    5. We need a component for each key on our keyboard.
+
+3. What state needs to get tracked? And where?
+    Popup: 
+        This appears when a few different things happen:
+            - Most of the time it appears when you guess incorrectly.
+            - When you win
+            - When you lose
+        What about this changes?
+            - The background color: Purple when guessed incorrectly, Green for when you win, Red for when you lose
+            - The text content on the inside changes.
+        This is a side effect of when the user clicks a key
+    Programming languages:
+        - The state of these only change when the user guesses incorrectly
+        - The game is over if the player reaches Assembly
+    Guess boxes:
+        - Changes when the user guesses a correct letter or when the game is over and then we populate
+          the guess boxes with the remaining letters and make the letters red to show which letters they missed
+        - The letter the user guesses is checked against the array of characters of the correct word
+          and then populates the guess boxes with the correct letters
+    Keyboard keys:
+        It seems like the keys on the keyboard have 4 different states they could be in
+            1. Yellow: Pre-guess
+            2. Green: Correct guess
+            3. Red: Incorrect guess
+            4. Half Opacity: When the game is over (can no longer click keys)
+    New Game button:
+        - Only appears when the game is over
+
+4. How is the game supposed to be played?
+    1. The user clicks a key on the keyboard.
+        - If the letter they guessed was correct, the key turns green and we apply the letter 
+          everywhere in the word where the letter matches the correct words letter. 
+        - If the letter they guessed was incorrect, the key turns red and we take away one
+          of the programming languages. 
+    2. The user repeatedly clicks keys until the game is either won or lost. 
+
+5. When is the game over?
+    The game is over when: 
+        1. The user either spells the word out with guesses remaining. (Win)
+        2. Or they hit Assembly and the game is over. (Lose)
