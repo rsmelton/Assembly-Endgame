@@ -34,8 +34,8 @@ const Key: FC<KeyProps> = ({ guessLetter, isGameOver, letter, hasGuessed, guesse
   return (
     <button
       onClick={handleClick}
-      className={`flex justify-center items-center w-[40px] h-[40px] border
-                  rounded ${keyBgColor} ${keyStyles}`}
+      className={`flex justify-center items-center w-[30px] h-[30px] md:w-[40px] md:h-[40px] border
+                  text-xs md:text-base rounded ${keyBgColor} ${keyStyles}`}
     >
       {letter}
     </button>

@@ -157,9 +157,10 @@ function App() {
       return (
         <div
           key={index}
-          className="flex justify-center items-center w-[40px] h-[40px] bg-[#323232] border-b border-[#F9F4DA] uppercase"
+          className="flex justify-center items-center w-[30px] h-[30px] md:w-[40px] md:h-[40px] 
+                     bg-[#323232] border-b border-[#F9F4DA] uppercase"
         >
-          <span className={textColor}>
+          <span className={`text-xs md:text-base ${textColor}`}>
             {letterToDisplay}
           </span>
         </div>
@@ -297,15 +298,15 @@ function App() {
   return (
     <main className="flex flex-col justify-center items-center h-screen">
       <section className="flex flex-col items-center mb-8">
-        <h1 className="text-[20px] text-[#F9F4DA]">Assembly: Endgame</h1>
-        <p className="text-[14px] text-[#8E8E8E] max-w-sm mx-auto text-center">Guess the word in under 8 attempts to keep the programming world safe from Assembly!</p>
+        <h1 className="text-base md:text-[20px] text-[#F9F4DA]">Assembly: Endgame</h1>
+        <p className="text-[12px] md:text-[14px] text-[#8E8E8E] max-w-sm mx-auto text-center text-balance">Guess the word in under 8 attempts to keep the programming world safe from Assembly!</p>
       </section>
       <section>{displayPopup()}</section>
-      <section className="flex justify-center gap-0.5 flex-wrap max-w-[300px] mb-8 relative">{displayProgrammingLanguages()}</section>
+      <section className="flex justify-center gap-0.5 flex-wrap max-w-[200px] md:max-w-[300px] mb-8 relative">{displayProgrammingLanguages()}</section>
       <section className="flex gap-0.5 mb-16">{displayGuessArray()}</section>
       <section className="flex flex-col gap-1.5 mb-8">{displayKeyboard()}</section>
       {isGameOver === true && 
-        <button className="rounded px-16 py-2 bg-[#11B5E5] border border-[#D7D7D7] cursor-pointer" onClick={startNewGame}>
+        <button className="rounded px-8 py-1 md:px-16 md:py-2 text-xs md:text-base bg-[#11B5E5] border border-[#D7D7D7] cursor-pointer" onClick={startNewGame}>
           New Game
         </button>
       }

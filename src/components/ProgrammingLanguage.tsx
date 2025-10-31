@@ -16,13 +16,15 @@ const ProgrammingLanguage: FC<ProgrammingLanguageProps> = ({
   return (
     <div
       className={
-        `relative text-[12px] p-1 rounded-[3px] ${bgColor} ${textColor}
+        `relative px-1 rounded-[3px] ${bgColor}
          ${isAlive === false ? 
             "before:flex before:justify-center before:items-center before:absolute before:inset-0 before:bg-black/50 before:content-['💀']"
             : "" } 
         `}
     >
-      {languageText}
+      <span className={`text-xs ${textColor}`}>
+        {languageText}
+      </span>
     </div>
   );
 };
