@@ -1,3 +1,5 @@
+Outer game handles logic. Inner component handles results/display. 
+
 1. What is the structure of the application?
    Outermost container: Flex container with centered items
     H1 tag: Assembly: Endgame
@@ -61,3 +63,62 @@
     The game is over when: 
         1. The user either spells the word out with guesses remaining. (Win)
         2. Or they hit Assembly and the game is over. (Lose)
+
+
+Implementation thoughts:
+    - Generate random word
+    - Generate array with empty slots in length equivalent to random word
+    - User clicks key
+    - We compare the letter of the key to each letter in the random word and 
+      fill in the slots of the empty array as needed
+
+    How do we know when to change the background color of the key?
+        - If we end up populating any slot in the guessed word slots
+        - If we don't
+        - If its the end of the game
+        So what do we use to indicate this happened?
+            - We can use state for the key inside the key component
+            - The state can be an object that has different properties such as:
+                - letter(string): populated by letter passed in
+                - hasGuessed(boolean): false (default state - Yellow)
+                - guessedCorrect(boolean): false (Set to true when correct - Green)
+                - guessedIncorrect(boolean): false (Set to false when incorrect - Red)
+            If it is the end of the game we can pass in a boolean to the key and we won't allow a click of the key
+    
+    Winning line:
+        - User clicks keys until we fill up the container for the guessed word
+    Losing line:
+        - User clicks keys until we reach Assembly
+
+    Programming languages container:
+        - Have state to track the array and everytime we set the array i.e. eliminate
+          a language, we can run a method to see if the game is over or not. 
+
+
+
+guessLetter function implementation:
+    When the user guesses a letter, what do we need to do?
+        1. Set guessedCorrect flag to false by default
+        2. Compare the letter to an array of letters produced from the word.
+        - If there are matches:
+            - Set guessArray to have new array with reflected guess
+            - Set guessedCorrect flag to true
+        - If there aren't matches:
+            - Eliminate a programming language (Include this feature later)
+            - Set programmingLanguages state
+        Set keys state
+
+Programming languages:
+    What does our state look like?
+        Ideas:
+            1. Hold an array of 1's and 0's to determine whether or not the associated 
+               programming language is still alive.
+            2. Create an array of objects that stores each individual programming language
+               and in each of these objects we have:
+               1. Programming language text: string
+               2. Dead or Alive: boolean
+               3. Background color: string
+               4. Text color: string
+    What data structure do we use to hold them?
+    How do we handle when getting a guess wrong? 
+        - 
