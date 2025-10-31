@@ -1,3 +1,4 @@
+// 1000 randomly generated words from Herokuapp API: https://random-word-api.herokuapp.com/word?number=1000
 const words: string[] = [
   "noris",
   "mammonists",

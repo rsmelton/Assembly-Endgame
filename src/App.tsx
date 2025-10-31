@@ -1,49 +1,78 @@
 import { useState } from "react";
-import Key from "./components/Key";
 import Popup from "./components/Popup";
+import ProgrammingLanguage from "./components/ProgrammingLanguage";
+import Key from "./components/Key";
 import words from "./words";
 import "./App.css";
 
-
-
-/*
-
-  The problem occurs when we win the game and click the new game button.
-  When clicking the new game button, what happens?
-  1. State of the game is being changed, but whats causing the problem is we 
-     are setting the state of the isGameOver boolean to false and then when the 
-     page re-renders, the condition for winning the game runs because we had set
-     the guessArray back to empty strings after clicking the new game button. Inside
-     this condition, we set the isGameOver boolean to true and this is what causes 
-     displayGuessArray to fill in the array with the correct letters.
-
-*/
-
-
-
-
-// Might need to install nanoid to get random ids
-// for everywhere that I use index when mapping
+/* Application Overview:
+ * 
+ * State used in the application:
+ *  word: A random word generated for the user to try and guess correct
+ * 
+ *  wordArray: An array built from the letters in word, is used to check the users guess and to also
+ *             fill in the remaining slots in guessArray at the end of the game if the user runs out
+ *             of programming languages or lives. 
+ * 
+ *  guessArray: An array of length:word.length that gets filled with empty strings at the start of the game.
+ *              This is the array that gets filled over time when the user guesses letters correctly or gets
+ *              filled at the end if the user runs out of programming languages or lives.
+ * 
+ *  popup: An object that holds three properties: text, subText, and bgColor. They all start out as empty strings
+ *         until we need to use the popup in our game. It will only ever be used if the user guesses incorrectly, 
+ *         wins the game, or loses the game.
+ * 
+ *  programmingLanguages: An array of objects where each object holds the different properties for how each 
+ *                        language gets displayed on the screen. It is also used to indicate when the user 
+ *                        runs out of lives i.e. when the second to last language is no longer alive. 
+ * 
+ *  keys: An array of objects built from a string containing all uppercase letters. Each object has a string
+ *        containing one of the letters, a hasGuessed boolean to indicate if this letter has been guessed before,
+ *        and a guessedCorrect boolean to indicate whether the key that clicked was correct or not.  
+ * 
+ *  isGameOver: A boolean that acts as a flag to be used for a few different things: When the game is over we want
+ *              the keyboard to be dark and unclickable, we want the remaining letters to be filled into the
+ *              guessArray if the user lost, we want to update our popup state to reflect winning or losing, and
+ *              lastly we want to render our new game button.  
+ *  
+ *
+ * How the game works:
+ *  The user clicks a key on the keyboard
+ *   If they made a correct guess:
+ *     - Change the bg color of the key to green
+ *     - Fill in the correct position of the guessArray where the letter should be
+ *   If they made an incorrect guess:
+ *     - Change the bg color of the key to red
+ *     - Display popup that alerts the user they have made a mistake
+ *     - Update the programmingLanguages state to reflect losing a language
+ * 
+ *  Every render of the page we are checking to see if the game is over or not
+ *   If the game is over we always gray out the keyboard to ensure users can't make
+ *   anymore guesses. We also display a new game button and a popup indicating if the user won or not. 
+ *   If the user lost, we fill in the remaining slots of the guessArray to show the 
+ *   user what letters of the word they missed in red.
+ */
 
 function App() {
+  // Here we use lazy initialization so we don't run these methods over and over again for no reason
   const [word, setWord] = useState(() => getFreshWord());
   const [wordArray, setWordArray] = useState(() => getFreshWordArray());
-  const [keys, setKeys] = useState(() => getFreshKeys());
   const [guessArray, setGuessArray] = useState(() => getFreshGuessArray());
-  const [programmingLanguages, setProgrammingLanguages] = useState(() => getFreshProgrammingLanguages());
   const [popup, setPopup] = useState(() => getFreshPopup());
+  const [programmingLanguages, setProgrammingLanguages] = useState(() => getFreshProgrammingLanguages());
+  const [keys, setKeys] = useState(() => getFreshKeys());
   const [isGameOver, setIsGameOver] = useState(false);
 
-  // When the game is over we want to do the following: 
-  // - Make the keyboard unclickable and grayed out (Can use flag for Key component)
-  // - If the user lost, we need to fill in the remaining letters in the guess array and make them red
-  // - Display popup that says You Win or Game Over
-  // - Display new game button at bottom of screen
+  /*** 
+   * Start of Win or Lose conditions 
+   * 
+   * The player wins if they fill up all the slots in the guessArray
+   * The player loses if they run out of languages/lives
+   * 
+   * */
 
-
-  // This means the user has filled up all the slots in the word, so they win the game
+  // Win
   if (guessArray.includes("") === false && isGameOver === false) {
-    console.log("Inside win condition")
     setIsGameOver(true);
     setPopup({
       text: "You win!",
@@ -52,10 +81,9 @@ function App() {
     });
   } 
 
-  // Player runs out of languages, so they lose the game
-  // We are doing -2 so we can skip past Assembly and get the second to last language
-  // This is completely fine to do since we will always have Assembly at the end
+  // Lose
   if (programmingLanguages[programmingLanguages.length - 2].isAlive === false && isGameOver === false) {
+    // We do length - 2 above to get the second to last language since that is the last language/life
     setIsGameOver(true);
     setPopup({
       text: "Game over!",
@@ -64,36 +92,30 @@ function App() {
     });
   }
 
+  /*** 
+   * Start of accessor methods
+   * 
+   * These methods allow us to get fresh data at the beginning of the game
+   * and also when the user clicks the new game button
+   * 
+   * */
+
   function getFreshWord() {
-    const word = words[Math.floor(Math.random() * words.length)];
-    console.log("Fresh Word: ", word);
-    return word;
-    // return words[Math.floor(Math.random() * words.length)];
+    return words[Math.floor(Math.random() * words.length)].toUpperCase();
   }
 
   function getFreshWordArray(newWord: string = word) {
-    const wordArray = newWord.split("").map((letter) => letter.toUpperCase());
-    console.log("Fresh Word Array: ", wordArray);
-    return wordArray;
-    // return word.split("").map((letter) => letter.toUpperCase());
-  }
-
-  function getFreshKeys() {
-    return Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").map((letter) => ({
-      letter: letter,
-      hasGuessed: false,
-      guessedCorrect: false,
-    }));
+    return newWord.split("");
   }
 
   function getFreshGuessArray(newWord: string = word) {
-    const guessArray = Array(newWord.length).fill("");
-    console.log("Guess Array: ", guessArray);
-    return guessArray;
-    // return Array(word.length).fill("");
+    return Array(newWord.length).fill("");
   }
 
-  // Could maybe pull the data in from a separate file
+  function getFreshPopup() {
+    return {text: "", subText: "", bgColor: ""}
+  }
+
   function getFreshProgrammingLanguages() {
     return [
       { languageText: "HTML", isAlive: true, bgColor: "bg-[#E2680F]", textColor: "text-[#FFFFFF]" },
@@ -108,56 +130,57 @@ function App() {
     ];
   }
 
-  function getFreshPopup() {
-    return {text: "", subText: "", bgColor: ""}
+  function getFreshKeys() {
+    return Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").map((letter) => ({
+      letter: letter,
+      hasGuessed: false,
+      guessedCorrect: false,
+    }));
   }
+
+  /*** 
+   * Start of display methods
+   * 
+   * Simply displays different aspects of the game
+   * 
+   * */
 
   function displayGuessArray() {
-    console.log("Inside displayGuessArray, is the game over?: ", isGameOver);
-    // If the game is over, reveal the remaining letters
-    if (isGameOver === true) {
-      return guessArray.map((guessedLetter, index) => {
-        return (
-          <div
-            key={index}
-            className="flex justify-center items-center w-[40px] h-[40px] bg-[#323232] border-b border-[#F9F4DA] uppercase"
-          >
-            {guessedLetter === "" ? 
-              <span className="text-[#EC5D49]">{wordArray[index]}</span> :
-              <span className="text-white">{guessedLetter}</span>            
-            }
-          </div>
-        )});
+    return guessArray.map((letter, index) => {
 
-    }
+      const shouldReveal = isGameOver === true && letter === "";
 
-    // Otherwise only reveal the letters they've guessed
-    return guessArray.map((guessedLetter, index) => (
-      <div
-        key={index}
-        className="flex justify-center items-center w-[40px] h-[40px] bg-[#323232] border-b border-[#F9F4DA] uppercase"
-      >
-        <span className="text-white">{guessedLetter}</span>
-      </div>
-    ));
-  }
+      const letterToDisplay = shouldReveal ? wordArray[index] : letter;
 
-  function displayProgrammingLanguages() {
-    return programmingLanguages.map((language) => (
-      <div key={language.languageText} 
-           className={`relative text-[12px] p-1 rounded-[3px]
-                       ${language.isAlive === false ? 
-                       "before:flex before:justify-center before:items-center before:absolute before:inset-0 before:bg-black/50 before:content-['💀']" 
-                       : ""} 
-                       ${language.bgColor} ${language.textColor}`}
-      >
-        {language.languageText}
-      </div>
-    ));
+      const textColor = shouldReveal ? "text-[#EC5D49]" : "text-white";
+
+      return (
+        <div
+          key={index}
+          className="flex justify-center items-center w-[40px] h-[40px] bg-[#323232] border-b border-[#F9F4DA] uppercase"
+        >
+          <span className={textColor}>
+            {letterToDisplay}
+          </span>
+        </div>
+      );
+    });
   }
 
   function displayPopup() {
     return <Popup text={popup.text} subText={popup.subText} bgColor={popup.bgColor} />
+  }
+
+  function displayProgrammingLanguages() {
+    return programmingLanguages.map((language) => (
+      <ProgrammingLanguage 
+        key={language.languageText}
+        languageText={language.languageText}
+        isAlive={language.isAlive}
+        bgColor={language.bgColor}
+        textColor={language.textColor}
+      />
+    ));
   }
 
   function displayKeyboard() {
@@ -185,25 +208,34 @@ function App() {
     ));
   }
 
+  /*** 
+   * Start of game functionality 
+   * 
+   * Checks if the letter the user guesses is correct,
+   * updates the popup upon incorrect guesses, updates the programming lanugages
+   * state so we know how many languages/lives we have left, and updates
+   * the state of the keys to reflect correct/incorrect guesses.
+   * 
+   * */
+
   // When the user clicks a key this method runs the main functionality of the game
   function guessLetter(guessedLetter: string) {
-    let guessedCorrect = false;
+    
+    // We know the user guessed correct if the letter exists in the wordArray
+    const guessedCorrect = wordArray.includes(guessedLetter);
 
-    wordArray.map((letter, index) => {
-      // If we guess correctly
-      if (guessedLetter === letter) {
-        // Update guessArray with correct letter guessed
-        setGuessArray((prevGuessArray) =>
-          // guessPlaceholder refers to the "" in every slot of the original array
-          prevGuessArray.map((guessPlaceholder, i) => 
-            (i === index ? guessedLetter : guessPlaceholder))
-        );
-        guessedCorrect = true;
-      }
-    });
-
-    // If we didn't guess correct
-    if (guessedCorrect === false) {
+    if (guessedCorrect) {
+      wordArray.map((letter, index) => {
+        // If correct, update the guessArray with the correct letter guessed
+        if (guessedLetter === letter) {
+          setGuessArray((prevGuessArray) =>
+            // guessPlaceholder refers to the "" in every slot of the original array
+            // This updates every slot in the guessArray where the guessedLetter matches the letter from wordArray
+            prevGuessArray.map((guessPlaceholder, i) => (i === index ? guessedLetter : guessPlaceholder))
+          );
+        }
+      });
+    } else {
       // Eliminate a programming language & update Popup state
       setProgrammingLanguages((prevProgrammingLanguages) => {
         const updatedLanguages = [...prevProgrammingLanguages];
@@ -211,13 +243,13 @@ function App() {
           "Farewell ",
           "It was nice knowing you ",
           "Goodbye ",
-        ]
+        ];
         const randomFarewell = farewells[Math.floor(Math.random() * farewells.length)];
 
         // Find the first language that is alive and update its isAlive property to false
+        // Change popup to reflect language lost
         for (let i = 0; i < updatedLanguages.length; i++) {
           if (updatedLanguages[i].isAlive) {
-            // Update popup state
             setPopup(
               { 
                 text: `"${randomFarewell} ${updatedLanguages[i].languageText}" 🫡`, 
@@ -226,7 +258,6 @@ function App() {
               }
             );
 
-            // Update languages state
             updatedLanguages[i] = { ...updatedLanguages[i], isAlive: false };
             break;
           }
@@ -236,7 +267,7 @@ function App() {
       });
     }
 
-    // Set keys state
+    // Update keyboard
     setKeys((prevKeys) =>
       prevKeys.map((key) =>
         key.letter === guessedLetter
@@ -246,24 +277,21 @@ function App() {
     );
   }
 
-  // Simply resets the state of the entire game
-  function startNewGame() {
-    setPopup(getFreshPopup());
-    setProgrammingLanguages(getFreshProgrammingLanguages());
-    setKeys(getFreshKeys());
-    setIsGameOver(false);
-    console.log("Inside startNewGame, is the game over?: ", isGameOver);
+  /*** Start of game reset process */
 
-    // Get the new values immediately
+  function startNewGame() {
+    // Get the new values immediately to avoid getting an old word
     const newWord = getFreshWord();
-    // Since the wordArray and guessArray both depend on the fresh word, 
-    // we have to get those immediately, otherwise it gets the old word.
     const newWordArray = getFreshWordArray(newWord);
     const newGuessArray = getFreshGuessArray(newWord);
 
     setWord(newWord);
     setWordArray(newWordArray);
     setGuessArray(newGuessArray);
+    setPopup(getFreshPopup());
+    setProgrammingLanguages(getFreshProgrammingLanguages());
+    setKeys(getFreshKeys());
+    setIsGameOver(false);
   }
 
   return (
@@ -276,7 +304,7 @@ function App() {
       <section className="flex justify-center gap-0.5 flex-wrap max-w-[300px] mb-8 relative">{displayProgrammingLanguages()}</section>
       <section className="flex gap-0.5 mb-16">{displayGuessArray()}</section>
       <section className="flex flex-col gap-1.5 mb-8">{displayKeyboard()}</section>
-      {isGameOver && 
+      {isGameOver === true && 
         <button className="rounded px-16 py-2 bg-[#11B5E5] border border-[#D7D7D7] cursor-pointer" onClick={startNewGame}>
           New Game
         </button>
